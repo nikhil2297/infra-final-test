@@ -5,16 +5,21 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 533267318652.dkr.ecr.us-east-1.amazonaws.com
+      - REPOSITORY_URI=533267318652.dkr.ecr.us-east-1.amazonaws.com/lohar/flask-app
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t lohar/flask-app:latest .
-      - docker tag lohar/flask-app:latest 533267318652.dkr.ecr.us-east-1.amazonaws.com/lohar/flask-app:latest
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker push 533267318652.dkr.ecr.us-east-1.amazonaws.com/lohar/flask-app:latest
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:latest > imageDefinitions.json
