@@ -22,11 +22,10 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - printf '{"family":"nikhil-lohar-100925168-task","containerDefinitions":[{"name":"nikhil-lohar-100925168-container","image":"%s"}]}' $REPOSITORY_URI:latest > taskdef.json
-      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:latest > imageDefinitions.json
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:latest > imagedefinitions.json
+      - cat imagedefinitions.json
 
 artifacts:
-  files:
-    - imageDefinitions.json
-    - taskdef.json
-    - appspec.yml
+  files: 
+    - imagedefinitions.json
+  discard-paths: yes
